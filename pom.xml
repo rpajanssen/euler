@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.abnamro.coesd</groupId>
+        <artifactId>master-pom</artifactId>
+        <version>4.1.0</version>
+    </parent>
+
+    <groupId>com.abnamro.assessment</groupId>
+    <artifactId>euler-exercises</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Euler Exercises</name>
+    <description></description>
+
+    <properties>
+        <java.source>11</java.source>
+        <java.target>11</java.target>
+    </properties>
+
+
+    <dependencies>
+
+        <!-- start junit5 test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+            <version>5.6.3</version>
+        </dependency>
+        <!-- start junit5 test dependencies -->
+
+    </dependencies>
+</project>
