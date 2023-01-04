@@ -28,6 +28,20 @@ class DateInformationTest {
     }
 
     @Test
+    void shouldDetermineNrOfDaysForFebruaryInYearDividableBy100() {
+        DateInformation underTest = new DateInformation(1, 2, 1900);
+
+        assertEquals(28, underTest.numberOfDaysInMonth());
+    }
+
+    @Test
+    void shouldDetermineNrOfDaysForFebruaryInLeapYearDividableBy400() {
+        DateInformation underTest = new DateInformation(1, 2, 2000);
+
+        assertEquals(29, underTest.numberOfDaysInMonth());
+    }
+
+    @Test
     void shouldDetermineNrOfDaysForJuli() {
         DateInformation underTest = new DateInformation(1, 7, 1973);
 

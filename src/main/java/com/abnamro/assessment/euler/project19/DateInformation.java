@@ -52,7 +52,7 @@ public class DateInformation {
     }
 
     boolean isLeapYear() {
-        return year % 4 == 0 || year % 400 == 0 && year % 100 != 0;
+        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
     }
 
     int nextMonth() {

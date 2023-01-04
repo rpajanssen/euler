@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LittleLessCyclomaticComplexityAndCleanEvenCleanerTest {
+class LittleLessCyclomaticComplexityAndEvenCleanerTest {
     @Test
     void shouldCalculateNrOfSundays() {
         assertEquals(171, LittleLessCyclomaticComplexityAndEvenCleaner.calculate());

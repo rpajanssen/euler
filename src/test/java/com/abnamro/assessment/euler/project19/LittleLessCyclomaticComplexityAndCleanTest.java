@@ -25,6 +25,9 @@ class LittleLessCyclomaticComplexityAndCleanTest {
         assertEquals(31, LittleLessCyclomaticComplexityAndClean.numberOfDaysInMonth(7, 1988));
         assertEquals(31, LittleLessCyclomaticComplexityAndClean.numberOfDaysInMonth(8, 1988));
         assertEquals(30, LittleLessCyclomaticComplexityAndClean.numberOfDaysInMonth(9, 1988));
+
+        assertEquals(28, LittleLessCyclomaticComplexityAndClean.numberOfDaysInMonth(2, 1900)); // not a leap year
+        assertEquals(29, LittleLessCyclomaticComplexityAndClean.numberOfDaysInMonth(2, 2000)); // a leap year
     }
 
     @Test

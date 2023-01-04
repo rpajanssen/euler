@@ -57,7 +57,7 @@ public class LittleLessCyclomaticComplexityAndClean {
         }
 
         if (month == FEBRUARY) {
-            return year % 4 == 0 || year % 400 == 0 && year % 100 != 0 ? 29 : 28;
+            return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 ? 29 : 28;
         }
 
         return 31;

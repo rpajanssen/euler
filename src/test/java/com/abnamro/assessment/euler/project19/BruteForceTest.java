@@ -26,5 +26,8 @@ class BruteForceTest {
         assertEquals(31, BruteForce.numberOfDaysInMonth(7, 1988));
         assertEquals(31, BruteForce.numberOfDaysInMonth(8, 1988));
         assertEquals(30, BruteForce.numberOfDaysInMonth(9, 1988));
+
+        assertEquals(28, BruteForce.numberOfDaysInMonth(2, 1900)); // not a leap year
+        assertEquals(29, BruteForce.numberOfDaysInMonth(2, 2000)); // a leap year
     }
 }

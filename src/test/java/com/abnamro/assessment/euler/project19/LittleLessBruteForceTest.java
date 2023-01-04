@@ -26,5 +26,8 @@ class LittleLessBruteForceTest {
         assertEquals(31, LittleLessBruteForce.numberOfDaysInMonth(7, 1988));
         assertEquals(31, LittleLessBruteForce.numberOfDaysInMonth(8, 1988));
         assertEquals(30, LittleLessBruteForce.numberOfDaysInMonth(9, 1988));
+
+        assertEquals(28, LittleLessBruteForce.numberOfDaysInMonth(2, 1900)); // not a leap year
+        assertEquals(29, LittleLessBruteForce.numberOfDaysInMonth(2, 2000)); // a leap year
     }
 }
