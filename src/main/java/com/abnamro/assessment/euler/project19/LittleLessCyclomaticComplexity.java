@@ -37,7 +37,7 @@ public class LittleLessCyclomaticComplexity {
         }
 
         if (month == 2) {
-            return year % 4 == 0 ? 29 : 28;
+            return year % 4 == 0 || year % 400 == 0 && year % 100 != 0 ? 29 : 28;
         }
 
         return 31;
