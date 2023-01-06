@@ -1,6 +1,40 @@
-Example project euler solutions
+**Example project euler solutions**
 
-Project 19
+These euler projects can be used as exercise during developer assessments.
+
+Criteria to monitor:
+- communication
+- approach
+- understanding of the problem
+- framework/lib choice
+- Java knowledge
+- patterns
+- clean code (vs over engineering - KISS)
+- testing
+- refactoring
+- coding principles
+- documentation
+- tool skills (bv IDE)
+
+
+*Project 15*
+
+https://projecteuler.net/problem=15
+
+In a grid, being only able to move  right and down, how many ways are there to go 
+from the top-left to lower-right corners?
+
+![2x2 grid](./docs/p015.png)
+
+Example solutions:
+
+1st solution : brute force with recursive path traversal (will into performance problems!)
+
+2nd solution : recognize the Pascal Triangle and use that to solve it
+
+3rd solution : recognize it is a mathematical [n-choose-k problem](http://en.wikipedia.org/wiki/Binomial_coefficient) and use that to solve it
+
+*Project 19*
 
 https://projecteuler.net/problem=19
 
@@ -27,19 +61,3 @@ Example solutions:
 - 5th solution : extracting logic to classes, cleanup code and main algorithm
 
 - last solution : using local-date
-
-Assessments
-
-Criteria to watch:
-- communication
-- approach
-- understanding of the problem
-- framework/lib choice
-- Java knowledge
-- patterns
-- clean code (vs over engineering - KISS)
-- testing
-- refactoring
-- coding principles
-- documentation
-- tool skills (bv IDE)
