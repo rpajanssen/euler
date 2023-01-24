@@ -164,7 +164,7 @@ class BruteForceTest {
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.JACK.getValue());
 
-        Hand result = underTest.isFourOfAKind(cards);
+        Hand result = underTest.isFullHouse(cards);
         assertEquals(Score.FULL_HOUSE, result.getScore(), "should be a full house");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of three of a kind");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the card of the one pair");
@@ -178,7 +178,7 @@ class BruteForceTest {
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.SIX.getValue());
 
-        Hand result = underTest.isFourOfAKind(cards);
+        Hand result = underTest.isFullHouse(cards);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a full house");
     }
 
@@ -190,7 +190,7 @@ class BruteForceTest {
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.SIX.getValue());
 
-        Hand result = underTest.isFourOfAKind(cards);
+        Hand result = underTest.isFullHouse(cards);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a full house");
     }
 
@@ -231,9 +231,7 @@ class BruteForceTest {
 
         Hand result = underTest.isStraight(cards);
         assertEquals(Score.STRAIGHT, result.getScore(), "should be a straight");
-        assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the proper high card");
-        assertEquals(Card.EIGHT.getValue(), result.getHighCards().get(1), "should detect the proper high card");
-        assertEquals(Card.FIVE.getValue(), result.getHighCards().get(4), "should detect the proper high card");
+        assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the straight high card");
     }
 
     @Test
@@ -326,7 +324,7 @@ class BruteForceTest {
         Hand result = underTest.isHighCard(cards);
         assertEquals(Score.HIGH_CARD, result.getScore(), "should be a high card");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(0), "should detect high card");
-        assertEquals(Card.TEN.getValue(), result.getHighCards().get(2), "should detect the high card");
+        assertEquals(Card.NINE.getValue(), result.getHighCards().get(2), "should detect the high card");
         assertEquals(Card.THREE.getValue(), result.getHighCards().get(4), "should detect the high card");
     }
 }

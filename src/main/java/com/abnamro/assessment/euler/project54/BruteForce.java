@@ -110,7 +110,7 @@ public class BruteForce {
         return hand;
     }
 
-    Hand  isRoyalFlush(Map<Suite, Integer> cards) {
+    Hand isRoyalFlush(Map<Suite, Integer> cards) {
         if(1 == cards.values().stream().filter(v -> v == BruteForce.VALUE_OF_ROYAL_FLUSH).count()) {
             return new Hand(Score.ROYAL_FLUSH, Card.ACE.getValue());
         }
@@ -164,14 +164,24 @@ public class BruteForce {
     }
 
     Hand isFlush(Map<Suite, Integer> cards) {
+        if(1 == cards.values().stream()
+                .filter(v -> v != 0)
+                .count()
+        ) {
+            return new Hand(Score.FLUSH, allCardsSorted(cards));
+        }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
     Hand isStraight(Map<Suite, Integer> cards) {
-        // OR oll suits in hand
-        // to binary string
-        // should contain "11111"
+        int result = cards.keySet().stream()
+                .map(s -> cards.get(s))
+                .reduce(0, (subtotal, element) -> subtotal | element);
+
+        if(Integer.toBinaryString(result).contains("11111")) {
+            return new Hand(Score.STRAIGHT, determineHighCard(result));
+        }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
@@ -195,18 +205,72 @@ public class BruteForce {
     }
 
     Hand isTwoPairs(Map<Suite, Integer> cards) {
+        List<Integer> allCards = allCardsSorted(cards);
+
+        // count similar value cards
+        Map<Integer, Integer> cardCount = new HashMap<>();
+        for(int cardIndex = 0; cardIndex<allCards.size(); cardIndex++) {
+            cardCount.put(
+                    allCards.get(cardIndex),
+                    Optional.ofNullable(cardCount.get(allCards.get(cardIndex))).orElse(0).intValue() + 1
+            );
+        }
+
+        // build list pairs and memorize the additional high card
+        List<Integer> pairCards = new ArrayList<>();
+        Integer highCard = 0;
+        for(Integer card: cardCount.keySet()) {
+            if(cardCount.get(card).intValue() == 2) {
+                pairCards.add(card);
+            } else {
+                highCard = card;
+            }
+        }
+
+        if(pairCards.size() == 2) {
+            sortHighLow(pairCards);
+            pairCards.add(highCard);
+            return new Hand(Score.TWO_PAIRS, pairCards);
+        }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
     Hand isOnePair(Map<Suite, Integer> cards) {
+        List<Integer> allCards = allCardsSorted(cards);
+
+        // count similar value cards
+        Map<Integer, Integer> cardCount = new HashMap<>();
+        for(int cardIndex = 0; cardIndex<allCards.size(); cardIndex++) {
+            cardCount.put(
+                    allCards.get(cardIndex),
+                    Optional.ofNullable(cardCount.get(allCards.get(cardIndex))).orElse(0).intValue() + 1
+            );
+        }
+
+        // build list pairs and memorize the additional high card
+        List<Integer> pairCards = new ArrayList<>();
+        List<Integer> highCards = new ArrayList<>();
+        for(Integer card: cardCount.keySet()) {
+            if(cardCount.get(card).intValue() == 2) {
+                pairCards.add(card);
+            } else {
+                highCards.add(card);
+            }
+        }
+
+        if(pairCards.size() == 1) {
+            sortHighLow(pairCards);
+            sortHighLow(highCards);
+            pairCards.addAll(highCards);
+            return new Hand(Score.ONE_PAIR, pairCards);
+        }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
     Hand isHighCard(Map<Suite, Integer> cards) {
-
-        return new Hand(Score.UNDETERMINED, 0);
+        return new Hand(Score.HIGH_CARD, allCardsSorted(cards));
     }
 
     private int highCardNextToFourOfAKind(Map<Suite, Integer> cards, int fourOfAKindCard) {
@@ -221,7 +285,7 @@ public class BruteForce {
     private List<Integer> highCardsNextToThreeOfAKind(Map<Suite, Integer> cards, int threeOfAKindCard) {
         List<Integer> highCards = new ArrayList<>();
 
-        // iterate of the suites in hand
+        // iterate over the suites in hand
         for(Suite suite : Suite.values()) {
             // for each suit in hand iterate over the cards
             String cardsAsBinary = Integer.toBinaryString(cards.get(suite));
@@ -235,16 +299,39 @@ public class BruteForce {
             }
         }
 
-        highCards.sort(new Comparator<Integer>() {
+        sortHighLow(highCards);
+
+        return highCards;
+    }
+
+    List<Integer> allCardsSorted(Map<Suite, Integer> cards) {
+        List<Integer> allCards = new ArrayList<>();
+
+        // iterate of the suites in hand
+        for(Suite suite : Suite.values()) {
+            // for each suit in hand iterate over the cards
+            String cardsAsBinary = Integer.toBinaryString(cards.get(suite));
+            for(int index = 0; index < cardsAsBinary.length() ; index++) {
+                if(cardsAsBinary.charAt(cardsAsBinary.length() - (index+1)) == '1') {
+                    allCards.add(Card.values()[index].getValue());
+                }
+            }
+        }
+
+        sortHighLow(allCards);
+
+        return allCards;
+
+    }
+
+    private void sortHighLow(List<Integer> allCards) {
+        allCards.sort(new Comparator<Integer>() {
             @Override
             public int compare(Integer o1, Integer o2) {
                 return o2.compareTo(o1);
             }
         });
-
-        return highCards;
     }
-
 
     int determineHighCard(int suiteScore) {
         // To find the position of the
