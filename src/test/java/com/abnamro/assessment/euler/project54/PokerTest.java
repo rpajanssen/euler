@@ -2,8 +2,9 @@ package com.abnamro.assessment.euler.project54;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 import static com.abnamro.assessment.euler.project54.Poker.VALUES_OF_STRAIGHT_FLUSH;
 import static com.abnamro.assessment.euler.project54.Poker.VALUE_OF_ROYAL_FLUSH;
@@ -14,17 +15,17 @@ class PokerTest {
     
     @Test
     void shouldParseHands() {
-        Table table = underTest.parseHands("JS 4H 8C 10H JH 2C 9H 9C AS JD");
+        Table table = underTest.parseHands("JS 4H 8C TH JH 2C 9H 9C AS JD");
 
-        assertEquals(64, table.playerOne.get(Suite.C));
-        assertEquals(0, table.playerOne.get(Suite.D));
-        assertEquals(772, table.playerOne.get(Suite.H));
-        assertEquals(512, table.playerOne.get(Suite.S));
+        assertEquals(64, table.getPlayerOne().get(Suite.C));
+        assertEquals(0, table.getPlayerOne().get(Suite.D));
+        assertEquals(772, table.getPlayerOne().get(Suite.H));
+        assertEquals(512, table.getPlayerOne().get(Suite.S));
 
-        assertEquals(129, table.playerTwo.get(Suite.C));
-        assertEquals(512, table.playerTwo.get(Suite.D));
-        assertEquals(128, table.playerTwo.get(Suite.H));
-        assertEquals(4096, table.playerTwo.get(Suite.S));
+        assertEquals(129, table.getPlayerTwo().get(Suite.C));
+        assertEquals(512, table.getPlayerTwo().get(Suite.D));
+        assertEquals(128, table.getPlayerTwo().get(Suite.H));
+        assertEquals(4096, table.getPlayerTwo().get(Suite.S));
     }
 
     @Test
@@ -420,7 +421,7 @@ class PokerTest {
 
         Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
         cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
-        cardsPlayerTwo.put(Suite.D, Card.DAME.getValue() + Card.JACK.getValue());
+        cardsPlayerTwo.put(Suite.D, Card.QUEEN.getValue() + Card.JACK.getValue());
         cardsPlayerTwo.put(Suite.H, Card.KING.getValue() );
         cardsPlayerTwo.put(Suite.S, Card.TEN.getValue());
 
@@ -451,5 +452,46 @@ class PokerTest {
 
         table = new Table(cardsPlayerTwo, cardsPlayerOne);
         assertEquals(1, underTest.determineWinner(table));
+    }
+
+    @Test
+    void shouldPlayAllHands() throws FileNotFoundException {
+        List<Table> tables = readFile();
+
+        Map<Integer, Integer> count = new HashMap<>();
+        count.put(1, 0);
+        count.put(2, 0);
+
+        for(Table table : tables) {
+            int winner = underTest.determineWinner(table);
+
+            count.put(winner, count.get(winner) + 1);
+        }
+
+        System.out.println("Player One won " + count.get(1) + " times.");
+        System.out.println("Player Two won " + count.get(2) + " times.");
+
+        assertEquals(376, count.get(1));
+    }
+
+    List<Table> readFile() throws FileNotFoundException {
+        List<Table> tables = new ArrayList<>();
+
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File("./target/test-classes/p054/poker.txt"));
+            while (scanner.hasNextLine()) {
+                String nextLine = scanner.nextLine();
+                if(nextLine!=null && !nextLine.isEmpty()) {
+                    tables.add(underTest.parseHands(nextLine));
+                }
+            }
+        } finally {
+            if(scanner!=null) {
+                scanner.close();
+            }
+        }
+
+        return tables;
     }
 }

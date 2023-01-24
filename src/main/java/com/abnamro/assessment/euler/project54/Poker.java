@@ -52,19 +52,19 @@ import java.util.function.Function;
 public class Poker {
     // todo : add to enum (simple stream summation)
     public static final int ALL_CARDS =
-            Card.ACE.getValue() + Card.KING.getValue() + Card.DAME.getValue()
+            Card.ACE.getValue() + Card.KING.getValue() + Card.QUEEN.getValue()
                 + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue()
                 + Card.EIGHT.getValue() + Card.SEVEN.getValue() +Card.SIX.getValue()
                 + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue()
                 + Card.TWO.getValue();
 
     public static final int VALUE_OF_ROYAL_FLUSH =
-            Card.ACE.getValue() + Card.KING.getValue() + Card.DAME.getValue()
+            Card.ACE.getValue() + Card.KING.getValue() + Card.QUEEN.getValue()
             + Card.JACK.getValue() + Card.TEN.getValue();
 
     public static final List<Integer> VALUES_OF_STRAIGHT_FLUSH = Arrays.asList(
-            Card.KING.getValue() + Card.DAME.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue(),
-            Card.DAME.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue(),
+            Card.KING.getValue() + Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue(),
+            Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue(),
             Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue(),
             Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue(),
             Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue(),
@@ -77,21 +77,29 @@ public class Poker {
         Hand playerOne = calculateHandValue(table.getPlayerOne());
         Hand playerTwo = calculateHandValue(table.getPlayerTwo());
 
-        int winner = 0;
         if (playerOne.getScore().getValue() > playerTwo.getScore().getValue()) {
-            winner = 1;
-        } else if (playerOne.getScore().getValue() < playerTwo.getScore().getValue()) {
-            winner = 2;
-        } else {
-            for(int cardIndex=0; cardIndex<playerOne.getHighCards().size();cardIndex++){
-                if (playerOne.getHighCards().get(cardIndex) > playerTwo.getHighCards().get(cardIndex)) {
-                    winner = 1;
-                } else if (playerOne.getHighCards().get(cardIndex) < playerTwo.getHighCards().get(cardIndex)) {
-                    winner = 2;
-                }
-            }
+            return 1;
         }
 
+        if (playerOne.getScore().getValue() < playerTwo.getScore().getValue()) {
+            return 2;
+        }
+
+        return determineWinnerOnHighestSideCard(playerOne, playerTwo);
+    }
+
+    private static int determineWinnerOnHighestSideCard(Hand playerOne, Hand playerTwo) {
+        int winner = 0;
+
+        for(int cardIndex = 0; cardIndex< playerOne.getHighCards().size(); cardIndex++){
+            if (playerOne.getHighCards().get(cardIndex) > playerTwo.getHighCards().get(cardIndex)) {
+                winner = 1;
+                break;
+            } else if (playerOne.getHighCards().get(cardIndex) < playerTwo.getHighCards().get(cardIndex)) {
+                winner = 2;
+                break;
+            }
+        }
         return winner;
     }
 
@@ -359,34 +367,24 @@ public class Poker {
             Card card = readCard(cardNr, allCards);
             Suite suite = readSuite(card, cardNr, allCards);
 
-            table.playerOne.put(suite, table.playerOne.get(suite).intValue() + card.getValue());
+            table.getPlayerOne().put(suite, table.getPlayerOne().get(suite).intValue() + card.getValue());
         }
 
         for(int cardNr = 5; cardNr <= 9; cardNr ++) {
             Card card = readCard(cardNr, allCards);
             Suite suite = readSuite(card, cardNr, allCards);
 
-            table.playerTwo.put(suite, table.playerTwo.get(suite).intValue() + card.getValue());
+            table.getPlayerTwo().put(suite, table.getPlayerTwo().get(suite).intValue() + card.getValue());
         }
 
         return table;
     }
 
     Card readCard(int cardNr, String[] allCards) {
-        // if the card value starts with a one we have a 10 and that is the only value
-        // with two chars so we need to read one more char
-        if("1".equals(allCards[cardNr].substring(0,1))) {
-            return Card.forCard(allCards[cardNr].substring(0, 2));
-        }
-
         return Card.forCard(allCards[cardNr].substring(0, 1));
     }
 
     Suite readSuite(Card card, int cardNr, String[] allCards) {
-        if(Card.TEN.equals(card)) {
-            return Suite.valueOf(allCards[cardNr].substring(2, 3));
-        }
-
         return Suite.valueOf(allCards[cardNr].substring(1, 2));
     }
 }

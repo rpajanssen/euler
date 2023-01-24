@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Table {
-    Map<Suite, Integer> playerOne = new HashMap<>();
-    Map<Suite, Integer> playerTwo = new HashMap<>();
+    private Map<Suite, Integer> playerOne = new HashMap<>();
+    private Map<Suite, Integer> playerTwo = new HashMap<>();
 
     public Table() {
         Arrays.stream(Suite.values()).forEach(
