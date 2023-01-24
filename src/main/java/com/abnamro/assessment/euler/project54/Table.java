@@ -1,37 +1,23 @@
 package com.abnamro.assessment.euler.project54;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Table {
-    private Map<Suite, Integer> playerOne = new HashMap<>();
-    private Map<Suite, Integer> playerTwo = new HashMap<>();
+    private Player playerOne = new Player();
+    private Player playerTwo = new Player();
 
     public Table() {
-        Arrays.stream(Suite.values()).forEach(
-                s -> {
-                    playerOne.put(s, 0);
-                    playerTwo.put(s, 0);
-                }
-        );
+        // todo
     }
 
-    public Table(Map<Suite, Integer> playerOneCards, Map<Suite, Integer> playerTwoCards) {
-        playerOneCards.keySet().stream().forEach(
-                k -> this.playerOne.put(k, playerOneCards.get(k))
-        );
-
-        playerTwoCards.keySet().stream().forEach(
-                k -> this.playerTwo.put(k, playerTwoCards.get(k))
-        );
+    public Table(Player playerOne, Player playerTwo) {
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
     }
 
-    public Map<Suite, Integer> getPlayerOne() {
+    public Player getPlayerOne() {
         return playerOne;
     }
 
-    public Map<Suite, Integer> getPlayerTwo() {
+    public Player getPlayerTwo() {
         return playerTwo;
     }
 }

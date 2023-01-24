@@ -17,15 +17,15 @@ class PokerTest {
     void shouldParseHands() {
         Table table = underTest.parseHands("JS 4H 8C TH JH 2C 9H 9C AS JD");
 
-        assertEquals(64, table.getPlayerOne().get(Suite.C));
-        assertEquals(0, table.getPlayerOne().get(Suite.D));
-        assertEquals(772, table.getPlayerOne().get(Suite.H));
-        assertEquals(512, table.getPlayerOne().get(Suite.S));
+        assertEquals(64, table.getPlayerOne().getCardsForSuite(Suite.C));
+        assertEquals(0, table.getPlayerOne().getCardsForSuite(Suite.D));
+        assertEquals(772, table.getPlayerOne().getCardsForSuite(Suite.H));
+        assertEquals(512, table.getPlayerOne().getCardsForSuite(Suite.S));
 
-        assertEquals(129, table.getPlayerTwo().get(Suite.C));
-        assertEquals(512, table.getPlayerTwo().get(Suite.D));
-        assertEquals(128, table.getPlayerTwo().get(Suite.H));
-        assertEquals(4096, table.getPlayerTwo().get(Suite.S));
+        assertEquals(129, table.getPlayerTwo().getCardsForSuite(Suite.C));
+        assertEquals(512, table.getPlayerTwo().getCardsForSuite(Suite.D));
+        assertEquals(128, table.getPlayerTwo().getCardsForSuite(Suite.H));
+        assertEquals(4096, table.getPlayerTwo().getCardsForSuite(Suite.S));
     }
 
     @Test
@@ -35,9 +35,23 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUE_OF_ROYAL_FLUSH);
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isRoyalFlush(cards);
+        Hand result = underTest.hasRoyalFlush(player);
         assertEquals(Score.ROYAL_FLUSH, result.getScore(), "should be a royal flush");
+    }
+
+    @Test
+    void shouldDetectItIsNotARoyalFlushWhileAllDifferentCardsArePresent() {
+        Map<Suite, Integer> cards = new HashMap<>();
+        cards.put(Suite.C, 0);
+        cards.put(Suite.D, Card.JACK.getValue());
+        cards.put(Suite.H, VALUE_OF_ROYAL_FLUSH - Card.JACK.getValue());
+        cards.put(Suite.S, 0);
+        Player player = new Player(cards);
+
+        Hand result = underTest.hasRoyalFlush(player);
+        assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a royal flush");
     }
 
     @Test
@@ -47,8 +61,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUE_OF_ROYAL_FLUSH - Card.JACK.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isRoyalFlush(cards);
+        Hand result = underTest.hasRoyalFlush(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a royal flush");
     }
 
@@ -59,8 +74,9 @@ class PokerTest {
         cards.put(Suite.D, VALUES_OF_STRAIGHT_FLUSH.get(2));
         cards.put(Suite.H, 0);
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isStraightFlush(cards);
+        Hand result = underTest.hasStraightFlush(player);
         assertEquals(Score.STRAIGHT_FLUSH, result.getScore(), "should be a straight flush");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(0), "should detect the proper high card");
     }
@@ -72,8 +88,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUES_OF_STRAIGHT_FLUSH.get(2) - Card.TEN.getValue() + Card.TWO.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isStraightFlush(cards);
+        Hand result = underTest.hasStraightFlush(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a straight flush");
     }
 
@@ -84,8 +101,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUES_OF_STRAIGHT_FLUSH.get(2) - Card.TEN.getValue());
         cards.put(Suite.S, Card.EIGHT.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isStraightFlush(cards);
+        Hand result = underTest.hasStraightFlush(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a straight flush");
     }
 
@@ -96,8 +114,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue());
         cards.put(Suite.H, Card.NINE.getValue() + Card.SIX.getValue());
         cards.put(Suite.S, Card.NINE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFourOfAKind(cards);
+        Hand result = underTest.hasFourOfAKind(player);
         assertEquals(Score.FOUR_OF_A_KIND, result.getScore(), "should be a four of a kind");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the four of a kind");
         assertEquals(Card.SIX.getValue(), result.getHighCards().get(1), "should detect the proper high card");
@@ -110,8 +129,9 @@ class PokerTest {
         cards.put(Suite.D, Card.SEVEN.getValue());
         cards.put(Suite.H, Card.NINE.getValue() + Card.SIX.getValue());
         cards.put(Suite.S, Card.NINE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFourOfAKind(cards);
+        Hand result = underTest.hasFourOfAKind(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a four of a kind");
     }
 
@@ -122,8 +142,9 @@ class PokerTest {
         cards.put(Suite.D, Card.KING.getValue());
         cards.put(Suite.H, Card.NINE.getValue() + Card.SIX.getValue());
         cards.put(Suite.S, Card.NINE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isThreeOfAKind(cards);
+        Hand result = underTest.hasThreeOfAKind(player);
         assertEquals(Score.THREE_OF_A_KIND, result.getScore(), "should be a three of a kind");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the three of a kind");
         assertEquals(Card.KING.getValue(), result.getHighCards().get(1), "should detect the proper high card");
@@ -137,8 +158,9 @@ class PokerTest {
         cards.put(Suite.D, Card.KING.getValue() + Card.SIX.getValue());
         cards.put(Suite.H, Card.NINE.getValue());
         cards.put(Suite.S, Card.NINE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isThreeOfAKind(cards);
+        Hand result = underTest.hasThreeOfAKind(player);
         assertEquals(Score.THREE_OF_A_KIND, result.getScore(), "should be a three of a kind");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the three of a kind");
         assertEquals(Card.KING.getValue(), result.getHighCards().get(1), "should detect the proper high card");
@@ -152,8 +174,9 @@ class PokerTest {
         cards.put(Suite.D, Card.KING.getValue());
         cards.put(Suite.H, Card.NINE.getValue() + Card.SIX.getValue());
         cards.put(Suite.S, Card.NINE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isThreeOfAKind(cards);
+        Hand result = underTest.hasThreeOfAKind(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a three of a kind");
     }
 
@@ -164,8 +187,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.JACK.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFullHouse(cards);
+        Hand result = underTest.hasFullHouse(player);
         assertEquals(Score.FULL_HOUSE, result.getScore(), "should be a full house");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of three of a kind");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the card of the one pair");
@@ -178,8 +202,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.SIX.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFullHouse(cards);
+        Hand result = underTest.hasFullHouse(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a full house");
     }
 
@@ -190,8 +215,9 @@ class PokerTest {
         cards.put(Suite.D, Card.THREE.getValue()+ Card.JACK.getValue());
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.SIX.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFullHouse(cards);
+        Hand result = underTest.hasFullHouse(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a full house");
     }
 
@@ -202,8 +228,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, Card.THREE.getValue() + Card.SIX.getValue() + Card.NINE.getValue() + Card.JACK.getValue() + Card.ACE.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFlush(cards);
+        Hand result = underTest.hasFlush(player);
         assertEquals(Score.FLUSH, result.getScore(), "should be a flush");
         assertEquals(Card.ACE.getValue(), result.getHighCards().get(0), "should detect the proper high card");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the proper high card");
@@ -217,8 +244,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, Card.THREE.getValue() + Card.NINE.getValue() + Card.JACK.getValue() + Card.ACE.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isFlush(cards);
+        Hand result = underTest.hasFlush(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a flush");
     }
 
@@ -229,8 +257,9 @@ class PokerTest {
         cards.put(Suite.D, Card.FIVE.getValue());
         cards.put(Suite.H, Card.SEVEN.getValue() + Card.EIGHT.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isStraight(cards);
+        Hand result = underTest.hasStraight(player);
         assertEquals(Score.STRAIGHT, result.getScore(), "should be a straight");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the straight high card");
     }
@@ -242,8 +271,9 @@ class PokerTest {
         cards.put(Suite.D, Card.FIVE.getValue());
         cards.put(Suite.H, Card.SEVEN.getValue() + Card.EIGHT.getValue());
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isStraight(cards);
+        Hand result = underTest.hasStraight(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a straight");
     }
 
@@ -254,8 +284,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue() );
         cards.put(Suite.S, Card.JACK.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isTwoPairs(cards);
+        Hand result = underTest.hasTwoPairs(player);
         assertEquals(Score.TWO_PAIRS, result.getScore(), "should be a two pair");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(0), "should detect the high card of the pairs");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(1), "should detect the low card of the pairs");
@@ -269,8 +300,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue() );
         cards.put(Suite.S, Card.JACK.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isTwoPairs(cards);
+        Hand result = underTest.hasTwoPairs(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a two pair");
     }
 
@@ -281,8 +313,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue());
         cards.put(Suite.S, Card.THREE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isOnePair(cards);
+        Hand result = underTest.hasOnePair(player);
         assertEquals(Score.ONE_PAIR, result.getScore(), "should be a one pair");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the pair");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the high card");
@@ -296,8 +329,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue());
         cards.put(Suite.S, Card.THREE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isOnePair(cards);
+        Hand result = underTest.hasOnePair(player);
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a pair");
     }
 
@@ -321,8 +355,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue());
         cards.put(Suite.S, Card.SIX.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isHighCard(cards);
+        Hand result = underTest.hasHighCard(player);
         assertEquals(Score.HIGH_CARD, result.getScore(), "should be a high card");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(0), "should detect high card");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(2), "should detect the high card");
@@ -336,8 +371,9 @@ class PokerTest {
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUE_OF_ROYAL_FLUSH);
         cards.put(Suite.S, 0);
+        Player player = new Player(cards);
 
-        Hand result = underTest.isRoyalFlush(cards);
+        Hand result = underTest.hasRoyalFlush(player);
         assertEquals(Score.ROYAL_FLUSH, result.getScore(), "should be a royal flush");
     }
     @Test
@@ -347,8 +383,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
         cards.put(Suite.H, Card.NINE.getValue() );
         cards.put(Suite.S, Card.JACK.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.calculateHandValue(cards);
+        Hand result = underTest.calculateHandValue(player);
         assertEquals(Score.FULL_HOUSE, result.getScore(), "should be a full house");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of three of a kind");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the card of the one pair");
@@ -361,8 +398,9 @@ class PokerTest {
         cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cards.put(Suite.H, Card.TEN.getValue());
         cards.put(Suite.S, Card.THREE.getValue());
+        Player player = new Player(cards);
 
-        Hand result = underTest.isOnePair(cards);
+        Hand result = underTest.hasOnePair(player);
         assertEquals(Score.ONE_PAIR, result.getScore(), "should be a one pair");
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the pair");
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the high card");
@@ -376,17 +414,19 @@ class PokerTest {
         cardsPlayerOne.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
         cardsPlayerOne.put(Suite.H, Card.NINE.getValue() );
         cardsPlayerOne.put(Suite.S, Card.JACK.getValue());
+        Player playerOne = new Player(cardsPlayerOne);
 
         Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
         cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
         cardsPlayerTwo.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
         cardsPlayerTwo.put(Suite.H, Card.TEN.getValue() );
         cardsPlayerTwo.put(Suite.S, Card.JACK.getValue());
+        Player playerTwo = new Player(cardsPlayerTwo);
 
-        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        Table table = new Table(playerOne, playerTwo);
         assertEquals(1, underTest.determineWinner(table));
 
-        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        table = new Table(playerTwo, playerOne);
         assertEquals(2, underTest.determineWinner(table));
     }
 
@@ -397,17 +437,19 @@ class PokerTest {
         cardsPlayerOne.put(Suite.D, Card.TWO.getValue()+ Card.JACK.getValue());
         cardsPlayerOne.put(Suite.H, Card.KING.getValue() );
         cardsPlayerOne.put(Suite.S, Card.SIX.getValue());
+        Player playerOne = new Player(cardsPlayerOne);
 
         Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
         cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
         cardsPlayerTwo.put(Suite.D, Card.TWO.getValue() + Card.JACK.getValue());
         cardsPlayerTwo.put(Suite.H, Card.KING.getValue() );
         cardsPlayerTwo.put(Suite.S, Card.SEVEN.getValue());
+        Player playerTwo = new Player(cardsPlayerTwo);
 
-        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        Table table = new Table(playerOne, playerTwo);
         assertEquals(2, underTest.determineWinner(table));
 
-        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        table = new Table(playerTwo, playerOne);
         assertEquals(1, underTest.determineWinner(table));
     }
 
@@ -418,17 +460,19 @@ class PokerTest {
         cardsPlayerOne.put(Suite.D, Card.EIGHT.getValue()+ Card.JACK.getValue());
         cardsPlayerOne.put(Suite.H, Card.NINE.getValue() );
         cardsPlayerOne.put(Suite.S, Card.TEN.getValue());
+        Player playerOne = new Player(cardsPlayerOne);
 
         Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
         cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
         cardsPlayerTwo.put(Suite.D, Card.QUEEN.getValue() + Card.JACK.getValue());
         cardsPlayerTwo.put(Suite.H, Card.KING.getValue() );
         cardsPlayerTwo.put(Suite.S, Card.TEN.getValue());
+        Player playerTwo = new Player(cardsPlayerTwo);
 
-        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        Table table = new Table(playerOne, playerTwo);
         assertEquals(2, underTest.determineWinner(table));
 
-        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        table = new Table(playerTwo, playerOne);
         assertEquals(1, underTest.determineWinner(table));
     }
 
@@ -439,6 +483,7 @@ class PokerTest {
         cardsPlayerOne.put(Suite.D, Card.EIGHT.getValue()+ Card.JACK.getValue());
         cardsPlayerOne.put(Suite.H, Card.EIGHT.getValue() );
         cardsPlayerOne.put(Suite.S, Card.TEN.getValue());
+        Player playerOne = new Player(cardsPlayerOne);
 
         // the 9H is the determining card here
         Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
@@ -446,11 +491,12 @@ class PokerTest {
         cardsPlayerTwo.put(Suite.D, Card.TEN.getValue() + Card.JACK.getValue());
         cardsPlayerTwo.put(Suite.H, Card.NINE.getValue() );
         cardsPlayerTwo.put(Suite.S, Card.EIGHT.getValue());
+        Player playerTwo = new Player(cardsPlayerTwo);
 
-        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        Table table = new Table(playerOne, playerTwo);
         assertEquals(2, underTest.determineWinner(table));
 
-        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        table = new Table(playerTwo, playerOne);
         assertEquals(1, underTest.determineWinner(table));
     }
 

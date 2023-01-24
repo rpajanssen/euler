@@ -103,40 +103,40 @@ public class Poker {
         return winner;
     }
 
-    Hand calculateHandValue(Map<Suite, Integer> cards) {
-        List<Function<Map<Suite, Integer>, Hand>> operations = Arrays.asList(
-                hand -> isRoyalFlush(cards),
-                hand -> isStraightFlush(cards),
-                hand -> isFourOfAKind(cards),
-                hand -> isFullHouse(cards),
-                hand -> isFlush(cards),
-                hand -> isStraight(cards),
-                hand -> isThreeOfAKind(cards),
-                hand -> isTwoPairs(cards),
-                hand -> isOnePair(cards),
-                hand -> isHighCard(cards)
+    Hand calculateHandValue(Player player) {
+        List<Function<Player, Hand>> operations = Arrays.asList(
+                hand -> hasRoyalFlush(player),
+                hand -> hasStraightFlush(player),
+                hand -> hasFourOfAKind(player),
+                hand -> hasFullHouse(player),
+                hand -> hasFlush(player),
+                hand -> hasStraight(player),
+                hand -> hasThreeOfAKind(player),
+                hand -> hasTwoPairs(player),
+                hand -> hasOnePair(player),
+                hand -> hasHighCard(player)
         );
 
         Hand hand = new Hand(Score.UNDETERMINED, 0);
         int index = 0;
         while(Score.UNDETERMINED == hand.getScore()) {
-            hand = operations.get(index++).apply(cards);
+            hand = operations.get(index++).apply(player);
         }
 
         return hand;
     }
 
-    Hand isRoyalFlush(Map<Suite, Integer> cards) {
-        if(1 == cards.values().stream().filter(v -> v == Poker.VALUE_OF_ROYAL_FLUSH).count()) {
+    Hand hasRoyalFlush(Player player) {
+        if(1 == player.getAllCards().stream().filter(v -> v == Poker.VALUE_OF_ROYAL_FLUSH).count()) {
             return new Hand(Score.ROYAL_FLUSH, Card.ACE.getValue());
         }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isStraightFlush(Map<Suite, Integer> cards) {
-        if(1 == cards.values().stream().filter(v -> Poker.VALUES_OF_STRAIGHT_FLUSH.stream().anyMatch(sf -> sf.intValue() == v.intValue())).count()) {
-            int highCardValue = cards.values().stream()
+    Hand hasStraightFlush(Player player) {
+        if(1 == player.getAllCards().stream().filter(v -> Poker.VALUES_OF_STRAIGHT_FLUSH.stream().anyMatch(sf -> sf.intValue() == v.intValue())).count()) {
+            int highCardValue = player.getAllCards().stream()
                     .filter(v -> 0 != v)
                     .findFirst()
                     .map(v -> determineHighCard(v))
@@ -148,25 +148,25 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isFourOfAKind(Map<Suite, Integer> cards) {
+    Hand hasFourOfAKind(Player player) {
         // bitwise and
-        int result = cards.values().stream()
+        int result = player.getAllCards().stream()
                 .reduce(ALL_CARDS, (subtotal, element) -> subtotal & element)
                 .intValue();
 
         if(result != 0) {
             return new Hand(
                     Score.FOUR_OF_A_KIND,
-                    Arrays.asList(result, highCardNextToFourOfAKind(cards, result))
+                    Arrays.asList(result, highCardNextToFourOfAKind(player, result))
             );
         }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isFullHouse(Map<Suite, Integer> cards) {
-        Hand threeOfAKind = isThreeOfAKind(cards);
-        Hand onePair = isOnePair(cards);
+    Hand hasFullHouse(Player player) {
+        Hand threeOfAKind = hasThreeOfAKind(player);
+        Hand onePair = hasOnePair(player);
 
         if(Score.THREE_OF_A_KIND == threeOfAKind.getScore() &&
            Score.ONE_PAIR == onePair.getScore()) {
@@ -179,22 +179,23 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isFlush(Map<Suite, Integer> cards) {
-        if(1 == cards.values().stream()
+    Hand hasFlush(Player player) {
+        if(1 == player.getAllCards().stream()
                 .filter(v -> v != 0)
                 .count()
         ) {
-            return new Hand(Score.FLUSH, allCardsSorted(cards));
+            return new Hand(Score.FLUSH, allCardsSorted(player));
         }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isStraight(Map<Suite, Integer> cards) {
-        int result = cards.keySet().stream()
-                .map(s -> cards.get(s))
+    Hand hasStraight(Player player) {
+        int result = Arrays.stream(Suite.values())
+                .map(s -> player.getCardsForSuite(s))
                 .reduce(0, (subtotal, element) -> subtotal | element);
 
+        // todo : magic string
         if(Integer.toBinaryString(result).contains("11111")) {
             return new Hand(Score.STRAIGHT, determineHighCard(result));
         }
@@ -202,17 +203,17 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isThreeOfAKind(Map<Suite, Integer> cards) {
+    Hand hasThreeOfAKind(Player player) {
          for(Suite suite : Suite.values()) {
-            int result = cards.keySet().stream()
+            int result = Arrays.stream(Suite.values())
                     .filter(s -> s != suite)
-                    .map(s -> cards.get(s))
+                    .map(s -> player.getCardsForSuite(s))
                     .reduce(ALL_CARDS, (subtotal, element) -> subtotal & element);
 
             if(result != 0) {
                 List<Integer> highCards = new ArrayList<>();
                 highCards.add(result);
-                highCards.addAll(highCardsNextToThreeOfAKind(cards, result));
+                highCards.addAll(highCardsNextToThreeOfAKind(player, result));
                 return new Hand(Score.THREE_OF_A_KIND, highCards);
             }
         }
@@ -220,8 +221,8 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isTwoPairs(Map<Suite, Integer> cards) {
-        List<Integer> allCards = allCardsSorted(cards);
+    Hand hasTwoPairs(Player player) {
+        List<Integer> allCards = allCardsSorted(player);
 
         // count similar value cards
         Map<Integer, Integer> cardCount = new HashMap<>();
@@ -252,8 +253,8 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isOnePair(Map<Suite, Integer> cards) {
-        List<Integer> allCards = allCardsSorted(cards);
+    Hand hasOnePair(Player player) {
+        List<Integer> allCards = allCardsSorted(player);
 
         // count similar value cards
         Map<Integer, Integer> cardCount = new HashMap<>();
@@ -285,12 +286,12 @@ public class Poker {
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand isHighCard(Map<Suite, Integer> cards) {
-        return new Hand(Score.HIGH_CARD, allCardsSorted(cards));
+    Hand hasHighCard(Player player) {
+        return new Hand(Score.HIGH_CARD, allCardsSorted(player));
     }
 
-    private int highCardNextToFourOfAKind(Map<Suite, Integer> cards, int fourOfAKindCard) {
-        return cards.values().stream()
+    private int highCardNextToFourOfAKind(Player player, int fourOfAKindCard) {
+        return player.getAllCards().stream()
                 .filter(v -> v != 0)
                 .map(v -> v - fourOfAKindCard)
                 .filter(v -> v != 0)
@@ -298,13 +299,13 @@ public class Poker {
                 .get();
     }
 
-    private List<Integer> highCardsNextToThreeOfAKind(Map<Suite, Integer> cards, int threeOfAKindCard) {
+    private List<Integer> highCardsNextToThreeOfAKind(Player player, int threeOfAKindCard) {
         List<Integer> highCards = new ArrayList<>();
 
         // iterate over the suites in hand
         for(Suite suite : Suite.values()) {
             // for each suit in hand iterate over the cards
-            String cardsAsBinary = Integer.toBinaryString(cards.get(suite));
+            String cardsAsBinary = Integer.toBinaryString(player.getCardsForSuite(suite));
             for(int index = 0; index < cardsAsBinary.length() ; index++) {
                 if(cardsAsBinary.charAt(cardsAsBinary.length() - (index+1)) == '1') {
                     // if the card is not a three of a kind card then it is a highcard
@@ -320,13 +321,13 @@ public class Poker {
         return highCards;
     }
 
-    List<Integer> allCardsSorted(Map<Suite, Integer> cards) {
+    List<Integer> allCardsSorted(Player player) {
         List<Integer> allCards = new ArrayList<>();
 
         // iterate of the suites in hand
         for(Suite suite : Suite.values()) {
             // for each suit in hand iterate over the cards
-            String cardsAsBinary = Integer.toBinaryString(cards.get(suite));
+            String cardsAsBinary = Integer.toBinaryString(player.getCardsForSuite(suite));
             for(int index = 0; index < cardsAsBinary.length() ; index++) {
                 if(cardsAsBinary.charAt(cardsAsBinary.length() - (index+1)) == '1') {
                     allCards.add(Card.values()[index].getValue());
@@ -367,14 +368,14 @@ public class Poker {
             Card card = readCard(cardNr, allCards);
             Suite suite = readSuite(card, cardNr, allCards);
 
-            table.getPlayerOne().put(suite, table.getPlayerOne().get(suite).intValue() + card.getValue());
+            table.getPlayerOne().setCardsForSuite(suite, table.getPlayerOne().getCardsForSuite(suite).intValue() + card.getValue());
         }
 
         for(int cardNr = 5; cardNr <= 9; cardNr ++) {
             Card card = readCard(cardNr, allCards);
             Suite suite = readSuite(card, cardNr, allCards);
 
-            table.getPlayerTwo().put(suite, table.getPlayerTwo().get(suite).intValue() + card.getValue());
+            table.getPlayerTwo().setCardsForSuite(suite, table.getPlayerTwo().getCardsForSuite(suite).intValue() + card.getValue());
         }
 
         return table;
