@@ -61,3 +61,7 @@ Example solutions:
 - 5th solution : extracting logic to classes, cleanup code and main algorithm
 
 - last solution : using local-date
+
+*Project 54*
+
+https://projecteuler.net/problem=54
