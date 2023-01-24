@@ -327,4 +327,44 @@ class BruteForceTest {
         assertEquals(Card.NINE.getValue(), result.getHighCards().get(2), "should detect the high card");
         assertEquals(Card.THREE.getValue(), result.getHighCards().get(4), "should detect the high card");
     }
+
+    @Test
+    void shouldValueTheHandAsARoyalFlush() {
+        Map<Suite, Integer> cards = new HashMap<>();
+        cards.put(Suite.C, 0);
+        cards.put(Suite.D, 0);
+        cards.put(Suite.H, VALUE_OF_ROYAL_FLUSH);
+        cards.put(Suite.S, 0);
+
+        Hand result = underTest.isRoyalFlush(cards);
+        assertEquals(Score.ROYAL_FLUSH, result.getScore(), "should be a royal flush");
+    }
+    @Test
+    void shouldValueTheHandAsAFullHouse() {
+        Map<Suite, Integer> cards = new HashMap<>();
+        cards.put(Suite.C, Card.NINE.getValue());
+        cards.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
+        cards.put(Suite.H, Card.NINE.getValue() );
+        cards.put(Suite.S, Card.JACK.getValue());
+
+        Hand result = underTest.calculateHandValue(cards);
+        assertEquals(Score.FULL_HOUSE, result.getScore(), "should be a full house");
+        assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of three of a kind");
+        assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the card of the one pair");
+    }
+
+    @Test
+    void shouldValueTheHandAsAOnePair() {
+        Map<Suite, Integer> cards = new HashMap<>();
+        cards.put(Suite.C, Card.NINE.getValue());
+        cards.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
+        cards.put(Suite.H, Card.TEN.getValue());
+        cards.put(Suite.S, Card.THREE.getValue());
+
+        Hand result = underTest.isOnePair(cards);
+        assertEquals(Score.ONE_PAIR, result.getScore(), "should be a one pair");
+        assertEquals(Card.NINE.getValue(), result.getHighCards().get(0), "should detect the card of the pair");
+        assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the high card");
+        assertEquals(Card.THREE.getValue(), result.getHighCards().get(3), "should detect the high card");
+    }
 }

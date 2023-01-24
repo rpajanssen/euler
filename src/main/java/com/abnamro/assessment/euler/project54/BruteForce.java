@@ -104,7 +104,7 @@ public class BruteForce {
         Hand hand = new Hand(Score.UNDETERMINED, 0);
         int index = 0;
         while(Score.UNDETERMINED == hand.getScore()) {
-            hand = operations.get(index).apply(cards);
+            hand = operations.get(index++).apply(cards);
         }
 
         return hand;
