@@ -49,7 +49,7 @@ import java.util.function.Function;
  *
  * How many hands does Player 1 win?
  */
-public class BruteForce {
+public class Poker {
     // todo : add to enum (simple stream summation)
     public static final int ALL_CARDS =
             Card.ACE.getValue() + Card.KING.getValue() + Card.DAME.getValue()
@@ -72,6 +72,8 @@ public class BruteForce {
             Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue(),
             Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue() + Card.TWO.getValue()
     );
+
+
 
     /**
      * High Card: Highest value card.
@@ -111,7 +113,7 @@ public class BruteForce {
     }
 
     Hand isRoyalFlush(Map<Suite, Integer> cards) {
-        if(1 == cards.values().stream().filter(v -> v == BruteForce.VALUE_OF_ROYAL_FLUSH).count()) {
+        if(1 == cards.values().stream().filter(v -> v == Poker.VALUE_OF_ROYAL_FLUSH).count()) {
             return new Hand(Score.ROYAL_FLUSH, Card.ACE.getValue());
         }
 
@@ -119,7 +121,7 @@ public class BruteForce {
     }
 
     Hand isStraightFlush(Map<Suite, Integer> cards) {
-        if(1 == cards.values().stream().filter(v -> BruteForce.VALUES_OF_STRAIGHT_FLUSH.stream().anyMatch(sf -> sf.intValue() == v.intValue())).count()) {
+        if(1 == cards.values().stream().filter(v -> Poker.VALUES_OF_STRAIGHT_FLUSH.stream().anyMatch(sf -> sf.intValue() == v.intValue())).count()) {
             int highCardValue = cards.values().stream()
                     .filter(v -> 0 != v)
                     .findFirst()

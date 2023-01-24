@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.abnamro.assessment.euler.project54.BruteForce.VALUES_OF_STRAIGHT_FLUSH;
-import static com.abnamro.assessment.euler.project54.BruteForce.VALUE_OF_ROYAL_FLUSH;
+import static com.abnamro.assessment.euler.project54.Poker.VALUES_OF_STRAIGHT_FLUSH;
+import static com.abnamro.assessment.euler.project54.Poker.VALUE_OF_ROYAL_FLUSH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PokerTest {
-    private BruteForce underTest = new BruteForce();
+    private Poker underTest = new Poker();
     
     @Test
     void shouldParseHands() {
