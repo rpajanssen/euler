@@ -367,4 +367,89 @@ class PokerTest {
         assertEquals(Card.JACK.getValue(), result.getHighCards().get(1), "should detect the high card");
         assertEquals(Card.THREE.getValue(), result.getHighCards().get(3), "should detect the high card");
     }
+
+    @Test
+    void shouldDetermineWinnerFullHouseVSTwoPair() {
+        Map<Suite, Integer> cardsPlayerOne = new HashMap<>();
+        cardsPlayerOne.put(Suite.C, Card.NINE.getValue());
+        cardsPlayerOne.put(Suite.D, Card.NINE.getValue()+ Card.JACK.getValue());
+        cardsPlayerOne.put(Suite.H, Card.NINE.getValue() );
+        cardsPlayerOne.put(Suite.S, Card.JACK.getValue());
+
+        Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
+        cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
+        cardsPlayerTwo.put(Suite.D, Card.NINE.getValue() + Card.JACK.getValue());
+        cardsPlayerTwo.put(Suite.H, Card.TEN.getValue() );
+        cardsPlayerTwo.put(Suite.S, Card.JACK.getValue());
+
+        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        assertEquals(1, underTest.determineWinner(table));
+
+        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        assertEquals(2, underTest.determineWinner(table));
+    }
+
+    @Test
+    void shouldDetermineWinnerHighCardVSHighCard() {
+        Map<Suite, Integer> cardsPlayerOne = new HashMap<>();
+        cardsPlayerOne.put(Suite.C, Card.NINE.getValue());
+        cardsPlayerOne.put(Suite.D, Card.TWO.getValue()+ Card.JACK.getValue());
+        cardsPlayerOne.put(Suite.H, Card.KING.getValue() );
+        cardsPlayerOne.put(Suite.S, Card.SIX.getValue());
+
+        Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
+        cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
+        cardsPlayerTwo.put(Suite.D, Card.TWO.getValue() + Card.JACK.getValue());
+        cardsPlayerTwo.put(Suite.H, Card.KING.getValue() );
+        cardsPlayerTwo.put(Suite.S, Card.SEVEN.getValue());
+
+        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        assertEquals(2, underTest.determineWinner(table));
+
+        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        assertEquals(1, underTest.determineWinner(table));
+    }
+
+    @Test
+    void shouldDetermineWinnerStraightVSStraight() {
+        Map<Suite, Integer> cardsPlayerOne = new HashMap<>();
+        cardsPlayerOne.put(Suite.C, Card.SEVEN.getValue());
+        cardsPlayerOne.put(Suite.D, Card.EIGHT.getValue()+ Card.JACK.getValue());
+        cardsPlayerOne.put(Suite.H, Card.NINE.getValue() );
+        cardsPlayerOne.put(Suite.S, Card.TEN.getValue());
+
+        Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
+        cardsPlayerTwo.put(Suite.C, Card.NINE.getValue());
+        cardsPlayerTwo.put(Suite.D, Card.DAME.getValue() + Card.JACK.getValue());
+        cardsPlayerTwo.put(Suite.H, Card.KING.getValue() );
+        cardsPlayerTwo.put(Suite.S, Card.TEN.getValue());
+
+        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        assertEquals(2, underTest.determineWinner(table));
+
+        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        assertEquals(1, underTest.determineWinner(table));
+    }
+
+    @Test
+    void shouldDetermineWinnerOnePairVSOnePair() {
+        Map<Suite, Integer> cardsPlayerOne = new HashMap<>();
+        cardsPlayerOne.put(Suite.C, Card.SEVEN.getValue());
+        cardsPlayerOne.put(Suite.D, Card.EIGHT.getValue()+ Card.JACK.getValue());
+        cardsPlayerOne.put(Suite.H, Card.EIGHT.getValue() );
+        cardsPlayerOne.put(Suite.S, Card.TEN.getValue());
+
+        // the 9H is the determining card here
+        Map<Suite, Integer> cardsPlayerTwo = new HashMap<>();
+        cardsPlayerTwo.put(Suite.C, Card.EIGHT.getValue());
+        cardsPlayerTwo.put(Suite.D, Card.TEN.getValue() + Card.JACK.getValue());
+        cardsPlayerTwo.put(Suite.H, Card.NINE.getValue() );
+        cardsPlayerTwo.put(Suite.S, Card.EIGHT.getValue());
+
+        Table table = new Table(cardsPlayerOne, cardsPlayerTwo);
+        assertEquals(2, underTest.determineWinner(table));
+
+        table = new Table(cardsPlayerTwo, cardsPlayerOne);
+        assertEquals(1, underTest.determineWinner(table));
+    }
 }
