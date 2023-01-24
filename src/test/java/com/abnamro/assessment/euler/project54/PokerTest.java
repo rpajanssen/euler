@@ -9,7 +9,7 @@ import static com.abnamro.assessment.euler.project54.BruteForce.VALUES_OF_STRAIG
 import static com.abnamro.assessment.euler.project54.BruteForce.VALUE_OF_ROYAL_FLUSH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class BruteForceTest {
+class PokerTest {
     private BruteForce underTest = new BruteForce();
     
     @Test

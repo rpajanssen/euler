@@ -12,7 +12,7 @@ package com.abnamro.assessment.euler.project19;
  * How many Sundays fell on the first of the month during the twentieth century
  * (1 Jan 1901 to 31 Dec 2000)?
  */
-public class BruteForce {
+public class Poker {
     private static final int JANUARY = 1;
     private static final int DECEMBER = 12;
     private static final int MONDAY = 1;
