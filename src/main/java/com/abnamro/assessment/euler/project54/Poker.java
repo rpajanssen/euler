@@ -50,7 +50,6 @@ import java.util.function.Function;
  * How many hands does Player 1 win?
  */
 public class Poker {
-    // todo : add to enum (simple stream summation)
     public static final int ALL_CARDS =
             Card.ACE.getValue() + Card.KING.getValue() + Card.QUEEN.getValue()
                 + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue()
