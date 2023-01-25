@@ -11,22 +11,7 @@ import static com.abnamro.assessment.euler.project54.Poker.VALUE_OF_ROYAL_FLUSH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PokerTest {
-    private Poker underTest = new Poker();
-    
-    @Test
-    void shouldParseHands() {
-        Table table = underTest.parseHands("JS 4H 8C TH JH 2C 9H 9C AS JD");
-
-        assertEquals(64, table.getPlayerOne().getCardsForSuite(Suite.C));
-        assertEquals(0, table.getPlayerOne().getCardsForSuite(Suite.D));
-        assertEquals(772, table.getPlayerOne().getCardsForSuite(Suite.H));
-        assertEquals(512, table.getPlayerOne().getCardsForSuite(Suite.S));
-
-        assertEquals(129, table.getPlayerTwo().getCardsForSuite(Suite.C));
-        assertEquals(512, table.getPlayerTwo().getCardsForSuite(Suite.D));
-        assertEquals(128, table.getPlayerTwo().getCardsForSuite(Suite.H));
-        assertEquals(4096, table.getPlayerTwo().getCardsForSuite(Suite.S));
-    }
+    private final Poker underTest = new Poker();
 
     @Test
     void shouldDetectRoyalFlush() {
@@ -335,18 +320,18 @@ class PokerTest {
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a pair");
     }
 
-    // todo
-//    @Test
-//    void shouldDetectItIsNotAPairIfItIsAThreeOfAKind() {
-//        Map<Suite, Integer> cards = new HashMap<>();
-//        cards.put(Suite.C, Card.TEN.getValue());
-//        cards.put(Suite.D, Card.TEN.getValue() + Card.JACK.getValue());
-//        cards.put(Suite.H, Card.TEN.getValue());
-//        cards.put(Suite.S, Card.THREE.getValue());
-//
-//        Hand result = underTest.isOnePair(cards);
-//        assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a pair");
-//    }
+    @Test
+    void shouldDetectItIsNotAPairIfItIsAThreeOfAKind() {
+        Map<Suite, Integer> cards = new HashMap<>();
+        cards.put(Suite.C, Card.TEN.getValue());
+        cards.put(Suite.D, Card.TEN.getValue() + Card.JACK.getValue());
+        cards.put(Suite.H, Card.TEN.getValue());
+        cards.put(Suite.S, Card.THREE.getValue());
+        Player player = new Player(cards);
+
+        Hand result = underTest.hasOnePair(player);
+        assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a pair");
+    }
 
     @Test
     void shouldDetectHighCard() {
@@ -520,7 +505,7 @@ class PokerTest {
         assertEquals(376, count.get(1));
     }
 
-    List<Table> readFile() throws FileNotFoundException {
+    private List<Table> readFile() throws FileNotFoundException {
         List<Table> tables = new ArrayList<>();
 
         Scanner scanner = null;
@@ -529,7 +514,7 @@ class PokerTest {
             while (scanner.hasNextLine()) {
                 String nextLine = scanner.nextLine();
                 if(nextLine!=null && !nextLine.isEmpty()) {
-                    tables.add(underTest.parseHands(nextLine));
+                    tables.add(PokerHandDataParser.parseHands(nextLine));
                 }
             }
         } finally {

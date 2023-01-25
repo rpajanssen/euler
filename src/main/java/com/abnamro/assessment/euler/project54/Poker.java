@@ -359,33 +359,4 @@ public class Poker {
         // with set bit at k-th position
         return 1 << k;
     }
-
-    Table parseHands(String hands) {
-        Table table = new Table();
-        String[] allCards = hands.split(" ");
-
-        for(int cardNr = 0; cardNr <= 4; cardNr ++) {
-            Card card = readCard(cardNr, allCards);
-            Suite suite = readSuite(card, cardNr, allCards);
-
-            table.getPlayerOne().setCardsForSuite(suite, table.getPlayerOne().getCardsForSuite(suite).intValue() + card.getValue());
-        }
-
-        for(int cardNr = 5; cardNr <= 9; cardNr ++) {
-            Card card = readCard(cardNr, allCards);
-            Suite suite = readSuite(card, cardNr, allCards);
-
-            table.getPlayerTwo().setCardsForSuite(suite, table.getPlayerTwo().getCardsForSuite(suite).intValue() + card.getValue());
-        }
-
-        return table;
-    }
-
-    Card readCard(int cardNr, String[] allCards) {
-        return Card.forCard(allCards[cardNr].substring(0, 1));
-    }
-
-    Suite readSuite(Card card, int cardNr, String[] allCards) {
-        return Suite.valueOf(allCards[cardNr].substring(1, 2));
-    }
 }
