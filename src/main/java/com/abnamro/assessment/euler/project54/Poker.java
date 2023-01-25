@@ -109,7 +109,7 @@ public class Poker {
 
         Hand hand = new Hand(Score.UNDETERMINED, 0);
         int index = 0;
-        while(Score.UNDETERMINED == hand.getScore()) {
+        while(Score.UNDETERMINED == hand.getScore() && index < operations.size()) {
             hand = operations.get(index++).apply(player);
         }
 
@@ -120,6 +120,10 @@ public class Poker {
         if(1 == player.getAllCards().stream().filter(v -> v == Poker.VALUE_OF_ROYAL_FLUSH).count()) {
             return new Hand(Score.ROYAL_FLUSH, Card.ACE.getValue());
         }
+
+//        if(player.getAllCards().stream().anyMatch(v -> Integer.toBinaryString(v).startsWith(FIVE_CONSEQUTIVE_CARDS))) {
+//            return new Hand(Score.ROYAL_FLUSH, Card.ACE.getValue());
+//        }
 
         return new Hand(Score.UNDETERMINED, 0);
     }

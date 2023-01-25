@@ -5,6 +5,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Represents the playing card. Each card is valued and we use binary values so we can
+ * easily:
+ * - store all card for a suite (just add the values)
+ * - do bitwise operations to verify certain hands
+ */
 enum Card {
     TWO("2", 1), THREE("3",2), FOUR("4", 4),
     FIVE("5", 8), SIX("6",16), SEVEN("7", 32),
