@@ -59,18 +59,8 @@ public class Poker {
 
     public static final int VALUE_OF_ROYAL_FLUSH =
             Card.ACE.getValue() + Card.KING.getValue() + Card.QUEEN.getValue()
-            + Card.JACK.getValue() + Card.TEN.getValue();
-
-    public static final List<Integer> VALUES_OF_STRAIGHT_FLUSH = Arrays.asList(
-            Card.KING.getValue() + Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue(),
-            Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue(),
-            Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue(),
-            Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue(),
-            Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue(),
-            Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue(),
-            Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue(),
-            Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue() + Card.TWO.getValue()
-    );
+                + Card.JACK.getValue() + Card.TEN.getValue();
+    public static final String FIVE_CONSEQUTIVE_CARDS = "11111";
 
     int determineWinner(Table table) {
         Hand playerOne = calculateHandValue(table.getPlayerOne());
@@ -134,7 +124,7 @@ public class Poker {
     }
 
     Hand hasStraightFlush(Player player) {
-        if(1 == player.getAllCards().stream().filter(v -> Poker.VALUES_OF_STRAIGHT_FLUSH.stream().anyMatch(sf -> sf.intValue() == v.intValue())).count()) {
+        if(player.getAllCards().stream().anyMatch(v -> Integer.toBinaryString(v).contains(FIVE_CONSEQUTIVE_CARDS))) {
             int highCardValue = player.getAllCards().stream()
                     .filter(v -> 0 != v)
                     .findFirst()
@@ -194,8 +184,7 @@ public class Poker {
                 .map(s -> player.getCardsForSuite(s))
                 .reduce(0, (subtotal, element) -> subtotal | element);
 
-        // todo : magic string
-        if(Integer.toBinaryString(result).contains("11111")) {
+        if(Integer.toBinaryString(result).contains(FIVE_CONSEQUTIVE_CARDS)) {
             return new Hand(Score.STRAIGHT, determineHighCard(result));
         }
 
@@ -225,18 +214,15 @@ public class Poker {
 
         // count similar value cards
         Map<Integer, Integer> cardCount = new HashMap<>();
-        for(int cardIndex = 0; cardIndex<allCards.size(); cardIndex++) {
-            cardCount.put(
-                    allCards.get(cardIndex),
-                    Optional.ofNullable(cardCount.get(allCards.get(cardIndex))).orElse(0).intValue() + 1
-            );
+        for (Integer allCard : allCards) {
+            cardCount.put(allCard, Optional.ofNullable(cardCount.get(allCard)).orElse(0) + 1);
         }
 
         // build list pairs and memorize the additional high card
         List<Integer> pairCards = new ArrayList<>();
         Integer highCard = 0;
         for(Integer card: cardCount.keySet()) {
-            if(cardCount.get(card).intValue() == 2) {
+            if(cardCount.get(card) == 2) {
                 pairCards.add(card);
             } else {
                 highCard = card;
@@ -257,18 +243,15 @@ public class Poker {
 
         // count similar value cards
         Map<Integer, Integer> cardCount = new HashMap<>();
-        for(int cardIndex = 0; cardIndex<allCards.size(); cardIndex++) {
-            cardCount.put(
-                    allCards.get(cardIndex),
-                    Optional.ofNullable(cardCount.get(allCards.get(cardIndex))).orElse(0).intValue() + 1
-            );
+        for (Integer allCard : allCards) {
+            cardCount.put(allCard, Optional.ofNullable(cardCount.get(allCard)).orElse(0) + 1);
         }
 
         // build list pairs and memorize the additional high card
         List<Integer> pairCards = new ArrayList<>();
         List<Integer> highCards = new ArrayList<>();
         for(Integer card: cardCount.keySet()) {
-            if(cardCount.get(card).intValue() == 2) {
+            if(cardCount.get(card) == 2) {
                 pairCards.add(card);
             } else {
                 highCards.add(card);
@@ -290,6 +273,11 @@ public class Poker {
     }
 
     private int highCardNextToFourOfAKind(Player player, int fourOfAKindCard) {
+        /*
+            Each suite has the four-of-a-kind-card and one suite has one additional
+            card so if we subtract the four-of-a-kind-card and the suite has still
+            a value... then that is the one remaining card.
+         */
         return player.getAllCards().stream()
                 .filter(v -> v != 0)
                 .map(v -> v - fourOfAKindCard)
@@ -321,6 +309,14 @@ public class Poker {
     }
 
     List<Integer> allCardsSorted(Player player) {
+        List<Integer> allCards = flattenSuite(player);
+
+        sortHighLow(allCards);
+
+        return allCards;
+    }
+
+    private List<Integer> flattenSuite(Player player) {
         List<Integer> allCards = new ArrayList<>();
 
         // iterate of the suites in hand
@@ -334,10 +330,7 @@ public class Poker {
             }
         }
 
-        sortHighLow(allCards);
-
         return allCards;
-
     }
 
     private void sortHighLow(List<Integer> allCards) {
@@ -349,10 +342,10 @@ public class Poker {
         });
     }
 
-    int determineHighCard(int suiteScore) {
+    int determineHighCard(int allCards) {
         // To find the position of the
         // most significant set bit
-        int k = (int)(Math.log(suiteScore) / Math.log(2));
+        int k = (int)(Math.log(allCards) / Math.log(2));
 
         // To return the value of the number
         // with set bit at k-th position

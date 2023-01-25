@@ -6,11 +6,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-import static com.abnamro.assessment.euler.project54.Poker.VALUES_OF_STRAIGHT_FLUSH;
 import static com.abnamro.assessment.euler.project54.Poker.VALUE_OF_ROYAL_FLUSH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PokerTest {
+    public static final List<Integer> VALUES_OF_STRAIGHT_FLUSH = Arrays.asList(
+            Card.KING.getValue() + Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue(),
+            Card.QUEEN.getValue() + Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue(),
+            Card.JACK.getValue() + Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue(),
+            Card.TEN.getValue() + Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue(),
+            Card.NINE.getValue() + Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue(),
+            Card.EIGHT.getValue() + Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue(),
+            Card.SEVEN.getValue() + Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue(),
+            Card.SIX.getValue() + Card.FIVE.getValue() + Card.FOUR.getValue() + Card.THREE.getValue() + Card.TWO.getValue()
+    );
+
     private final Poker underTest = new Poker();
 
     @Test
@@ -85,7 +95,7 @@ class PokerTest {
         cards.put(Suite.C, 0);
         cards.put(Suite.D, 0);
         cards.put(Suite.H, VALUES_OF_STRAIGHT_FLUSH.get(2) - Card.TEN.getValue());
-        cards.put(Suite.S, Card.EIGHT.getValue());
+        cards.put(Suite.S, Card.TEN.getValue());
         Player player = new Player(cards);
 
         Hand result = underTest.hasStraightFlush(player);
@@ -508,18 +518,12 @@ class PokerTest {
     private List<Table> readFile() throws FileNotFoundException {
         List<Table> tables = new ArrayList<>();
 
-        Scanner scanner = null;
-        try {
-            scanner = new Scanner(new File("./target/test-classes/p054/poker.txt"));
+        try (Scanner scanner = new Scanner(new File("./target/test-classes/p054/poker.txt"))) {
             while (scanner.hasNextLine()) {
                 String nextLine = scanner.nextLine();
-                if(nextLine!=null && !nextLine.isEmpty()) {
+                if (nextLine != null && !nextLine.isEmpty()) {
                     tables.add(PokerHandDataParser.parseHands(nextLine));
                 }
-            }
-        } finally {
-            if(scanner!=null) {
-                scanner.close();
             }
         }
 
