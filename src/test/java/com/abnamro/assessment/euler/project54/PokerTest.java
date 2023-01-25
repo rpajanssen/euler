@@ -330,6 +330,11 @@ class PokerTest {
         assertEquals(Score.UNDETERMINED, result.getScore(), "should not be a pair");
     }
 
+    /**
+     * Since we decide if it is a full house by validating the user has a
+     * three-of-a-kind and a one-pair... the one-pair calculation should not be
+     * tricked to give a positive result on a three of a kind.
+     */
     @Test
     void shouldDetectItIsNotAPairIfItIsAThreeOfAKind() {
         Map<Suite, Integer> cards = new HashMap<>();

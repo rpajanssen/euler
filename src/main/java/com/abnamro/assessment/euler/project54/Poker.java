@@ -49,6 +49,7 @@ import java.util.function.Function;
  *
  * How many hands does Player 1 win?
  */
+@SuppressWarnings("JavadocBlankLines")
 public class Poker {
     public static final int ALL_CARDS =
             Card.ACE.getValue() + Card.KING.getValue() + Card.QUEEN.getValue()
@@ -128,7 +129,7 @@ public class Poker {
             int highCardValue = player.getAllCards().stream()
                     .filter(v -> 0 != v)
                     .findFirst()
-                    .map(v -> determineHighCard(v))
+                    .map(this::determineHighCard)
                     .get();
 
             return new Hand(Score.STRAIGHT_FLUSH, highCardValue);
@@ -138,10 +139,10 @@ public class Poker {
     }
 
     Hand hasFourOfAKind(Player player) {
-        // bitwise and
+        // bitwise all suites and this will result in a single 1 bit for the card
+        // we have a for of a kind with or only zeros if no four of a kind
         int result = player.getAllCards().stream()
-                .reduce(ALL_CARDS, (subtotal, element) -> subtotal & element)
-                .intValue();
+                .reduce(ALL_CARDS, (subtotal, element) -> subtotal & element);
 
         if(result != 0) {
             return new Hand(
@@ -181,7 +182,7 @@ public class Poker {
 
     Hand hasStraight(Player player) {
         int result = Arrays.stream(Suite.values())
-                .map(s -> player.getCardsForSuite(s))
+                .map(player::getCardsForSuite)
                 .reduce(0, (subtotal, element) -> subtotal | element);
 
         if(Integer.toBinaryString(result).contains(FIVE_CONSEQUTIVE_CARDS)) {
@@ -195,7 +196,7 @@ public class Poker {
          for(Suite suite : Suite.values()) {
             int result = Arrays.stream(Suite.values())
                     .filter(s -> s != suite)
-                    .map(s -> player.getCardsForSuite(s))
+                    .map(player::getCardsForSuite)
                     .reduce(ALL_CARDS, (subtotal, element) -> subtotal & element);
 
             if(result != 0) {
@@ -210,62 +211,44 @@ public class Poker {
     }
 
     Hand hasTwoPairs(Player player) {
+        return hasPair(player, Score.TWO_PAIRS);
+    }
+
+    Hand hasOnePair(Player player) {
+        return hasPair(player, Score.ONE_PAIR);
+    }
+
+    private Hand hasPair(Player player, Score score) {
         List<Integer> allCards = allCardsSorted(player);
 
         // count similar value cards
-        Map<Integer, Integer> cardCount = new HashMap<>();
-        for (Integer allCard : allCards) {
-            cardCount.put(allCard, Optional.ofNullable(cardCount.get(allCard)).orElse(0) + 1);
-        }
+        Map<Integer, Integer> cardCount = countSimilarCards(allCards);
 
-        // build list pairs and memorize the additional high card
-        List<Integer> pairCards = new ArrayList<>();
-        Integer highCard = 0;
-        for(Integer card: cardCount.keySet()) {
-            if(cardCount.get(card) == 2) {
-                pairCards.add(card);
-            } else {
-                highCard = card;
-            }
-        }
+        // build list of pairs and memorize the additional high card
+        PairCount pairCount = countPairs(cardCount);
 
-        if(pairCards.size() == 2) {
-            sortHighLow(pairCards);
-            pairCards.add(highCard);
-            return new Hand(Score.TWO_PAIRS, pairCards);
+        if(pairCount.pairCards.size() == (Score.ONE_PAIR == score ? 1 : 2)) {
+            sortHighLow(pairCount.pairCards);
+            sortHighLow(pairCount.highCards);
+            pairCount.pairCards.addAll(pairCount.highCards);
+            return new Hand(score, pairCount.pairCards);
         }
 
         return new Hand(Score.UNDETERMINED, 0);
     }
 
-    Hand hasOnePair(Player player) {
-        List<Integer> allCards = allCardsSorted(player);
+    private PairCount countPairs(Map<Integer, Integer> cardCount) {
+        PairCount pairCount = new PairCount();
 
-        // count similar value cards
-        Map<Integer, Integer> cardCount = new HashMap<>();
-        for (Integer allCard : allCards) {
-            cardCount.put(allCard, Optional.ofNullable(cardCount.get(allCard)).orElse(0) + 1);
-        }
-
-        // build list pairs and memorize the additional high card
-        List<Integer> pairCards = new ArrayList<>();
-        List<Integer> highCards = new ArrayList<>();
         for(Integer card: cardCount.keySet()) {
             if(cardCount.get(card) == 2) {
-                pairCards.add(card);
+                pairCount.pairCards.add(card);
             } else {
-                highCards.add(card);
+                pairCount.highCards.add(card);
             }
         }
 
-        if(pairCards.size() == 1) {
-            sortHighLow(pairCards);
-            sortHighLow(highCards);
-            pairCards.addAll(highCards);
-            return new Hand(Score.ONE_PAIR, pairCards);
-        }
-
-        return new Hand(Score.UNDETERMINED, 0);
+        return pairCount;
     }
 
     Hand hasHighCard(Player player) {
@@ -308,7 +291,15 @@ public class Poker {
         return highCards;
     }
 
-    List<Integer> allCardsSorted(Player player) {
+    private Map<Integer, Integer> countSimilarCards(List<Integer> allCards) {
+        Map<Integer, Integer> cardCount = new HashMap<>();
+        for (Integer allCard : allCards) {
+            cardCount.put(allCard, Optional.ofNullable(cardCount.get(allCard)).orElse(0) + 1);
+        }
+        return cardCount;
+    }
+
+    private List<Integer> allCardsSorted(Player player) {
         List<Integer> allCards = flattenSuite(player);
 
         sortHighLow(allCards);
@@ -334,12 +325,7 @@ public class Poker {
     }
 
     private void sortHighLow(List<Integer> allCards) {
-        allCards.sort(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o2.compareTo(o1);
-            }
-        });
+        allCards.sort((o1, o2) -> o2.compareTo(o1));
     }
 
     int determineHighCard(int allCards) {
@@ -350,5 +336,10 @@ public class Poker {
         // To return the value of the number
         // with set bit at k-th position
         return 1 << k;
+    }
+
+    static class PairCount {
+        List<Integer> pairCards = new ArrayList<>();
+        List<Integer> highCards = new ArrayList<>();
     }
 }
